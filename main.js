@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, nativeTheme } = require('electron');
 
 if (process.platform === 'linux') {
   app.commandLine.appendSwitch('enable-features', 'WaylandWindowDecorations');
@@ -10,6 +10,10 @@ const {
   getWindowOptions,
   applyShellToWebContents,
 } = require('./electron-window');
+const {
+  getNativeThemeSource,
+  getThemeInjectionScript,
+} = require('./electron-app-config');
 
 const WEB_DIST = path.join(__dirname, 'aistudio-elrc-maker', 'dist');
 /** @type {import('http').Server | null} */
@@ -65,11 +69,16 @@ function createWindow(appUrl) {
   mainWindow.on('unmaximize', broadcastWindowState);
   mainWindow.on('enter-full-screen', broadcastWindowState);
   mainWindow.on('leave-full-screen', broadcastWindowState);
+  mainWindow.on('focus', () => mainWindow?.webContents.send('window:focus-changed', true));
+  mainWindow.on('blur', () => mainWindow?.webContents.send('window:focus-changed', false));
 
   const applyShell = () => {
     applyShellToWebContents(mainWindow).catch((err) => {
       console.warn('Failed to apply Electron shell:', err);
     });
+    // 注入主題初始化 script（在 React hydration 之前執行）
+    const themeScript = getThemeInjectionScript();
+    mainWindow?.webContents.executeJavaScript(themeScript).catch(() => {});
   };
   mainWindow.webContents.on('dom-ready', applyShell);
   mainWindow.webContents.on('did-finish-load', applyShell);
@@ -83,6 +92,8 @@ function createWindow(appUrl) {
 }
 
 async function bootstrap() {
+  // 套用主題設定（在建立視窗前設定，確保 nativeTheme 已就緒）
+  nativeTheme.themeSource = getNativeThemeSource();
   const appUrl = await ensureAppUrl();
   createWindow(appUrl);
 }

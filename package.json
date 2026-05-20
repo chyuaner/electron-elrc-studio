@@ -47,6 +47,7 @@
       "static-server.js",
       "electron-window.js",
       "electron-shell-config.js",
+      "electron-app-config.js",
       "electron-shell.css",
       "electron-bootstrap.js",
       "package.json",

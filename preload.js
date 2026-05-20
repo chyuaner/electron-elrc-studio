@@ -52,4 +52,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   windowDragMove: (pos) => ipcRenderer.send('window:drag-move', pos),
   windowDragEnd: () => ipcRenderer.send('window:drag-end'),
   needsManualWindowDrag: process.platform === 'linux',
+  /** 視窗焦點/失焦點通知 */
+  onFocusChanged: (callback) => {
+    if (typeof callback !== 'function') return () => {};
+    const handler = (_event, focused) => callback(focused);
+    ipcRenderer.on('window:focus-changed', handler);
+    return () => ipcRenderer.removeListener('window:focus-changed', handler);
+  },
 });

@@ -5,6 +5,7 @@ const {
   getShellConfig,
   TITLEBAR_COLORS,
 } = require('./electron-shell-config');
+const { getRoundedWindowCSS } = require('./electron-app-config');
 
 let cachedShellCss = null;
 let cachedBootstrapJs = null;
@@ -31,6 +32,11 @@ function readShellAssets() {
 async function applyShellToWebContents(win) {
   const { css, bootstrap } = readShellAssets();
   await win.webContents.insertCSS(css);
+  // 圓角視窗 CSS（透過 insertCSS 注入，最可靠，不受 JS 執行時序影響）
+  const roundedCss = getRoundedWindowCSS();
+  if (roundedCss) {
+    await win.webContents.insertCSS(roundedCss);
+  }
   await win.webContents.executeJavaScript(bootstrap, true);
 }
 
