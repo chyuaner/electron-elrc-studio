@@ -57,7 +57,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install Linux build dependencies
@@ -68,7 +68,16 @@ jobs:
             libarchive-tools \
             rpm
 
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          # Windows 上先跳過 postinstall，避免 EPERM rmdir 錯誤
+          npm ci --ignore-scripts
+          # 手動安裝子專案依賴
+          npm install --prefix aistudio-elrc-maker
+
       - name: Install dependencies
+        if: runner.os != 'Windows'
         run: npm ci
 
       - name: Build frontend & package
