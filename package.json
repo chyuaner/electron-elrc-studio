@@ -45,6 +45,10 @@
       "main.js",
       "preload.js",
       "static-server.js",
+      "electron-window.js",
+      "electron-shell-config.js",
+      "electron-shell.css",
+      "electron-bootstrap.js",
       "package.json",
       "aistudio-elrc-maker/dist/**/*"
     ],

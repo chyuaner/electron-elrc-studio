@@ -1,0 +1,13 @@
+/* Electron 桌面殼層：拖曳區與自訂視窗控制按鈕（不修改 aistudio 原始碼） */
+
+.app-region-drag {
+  -webkit-app-region: drag;
+}
+
+.app-region-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+[data-electron-window-controls] button:hover {
+  cursor: default;
+}

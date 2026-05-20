@@ -51,11 +51,28 @@ npm run dist
 
 產物位於 `release/`（Linux：AppImage / deb，Windows：nsis，macOS：dmg）。
 
+## 自訂標題列（TopToolbar）
+
+桌面版以 `TopToolbar` 作為標題列，依平台採用混合策略（邏輯在 repo 根目錄，不修改 `aistudio-elrc-maker`）：
+
+| 平台 | 視窗外框 | 視窗按鈕 | 預留空間 |
+|------|----------|----------|----------|
+| **macOS** | `titleBarStyle: hiddenInset` | 系統紅綠燈（左側） | `--titlebar-left-padding: 70px` |
+| **Windows** | `titleBarStyle: hidden` + `titleBarOverlay` | 系統覆蓋按鈕（右側） | `--titlebar-right-padding: 138px` |
+| **Linux** | `frame: false` | 注入 HTML 三顆按鈕 | `--titlebar-right-padding: 138px` |
+
+標題列拖曳：`globals.css` 內 `html.electron-shell header` 規則；Linux 另備 IPC 手動拖曳（Wayland 相容）。雙擊 `header` 可最大化／還原。
+
+Linux 自訂三顆按鈕由 `ElectronWindowControls` 繪製於 `TopToolbar` 右側（需 `npm run build:web` 後才會出現在 dist）。
+
 ## 專案結構
 
 | 路徑 | 說明 |
 |------|------|
 | `main.js` | Electron 主行程：視窗、本機靜態伺服器 |
-| `preload.js` | 暴露 `window.electronAPI`（全螢幕等） |
+| `preload.js` | 暴露 `window.electronAPI`（全螢幕、視窗控制等） |
+| `electron-window.js` | 各平台無邊框／標題列覆蓋設定 |
+| `electron-shell.css` | 拖曳區 `-webkit-app-region`、自訂視窗按鈕樣式 |
+| `electron-bootstrap.js` | 注入標題列 padding、Linux 自訂三顆按鈕 |
 | `static-server.js` | 載入 `aistudio-elrc-maker/dist` |
 | `aistudio-elrc-maker/` | Git submodule（Next.js 前端） |
