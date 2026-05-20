@@ -1,3 +1,7 @@
+# Electron build output
+release/
+.npm-cache/
+
 # Logs
 logs
 *.log

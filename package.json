@@ -1,16 +1,65 @@
 {
   "name": "electron-elrc-maker",
   "version": "1.0.0",
-  "description": "",
+  "description": "LRC Maker Enhanced — Electron 桌面版",
+  "homepage": "https://github.com/chyuaner/aistudio-elrc-maker",
   "license": "ISC",
-  "author": "Yuan Chiu",
+  "author": {
+    "name": "Yuan Chiu",
+    "email": "chyuaner@gmail.com"
+  },
   "type": "commonjs",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "postinstall": "npm install --prefix aistudio-elrc-maker",
+    "build:web": "npm run build --prefix aistudio-elrc-maker",
+    "start": "cross-env ELECTRON_RUN_AS_NODE= electron .",
+    "watch:web": "chokidar \"aistudio-elrc-maker/{app,components,lib,hooks}/**/*.{ts,tsx,css}\" --ignore \"**/node_modules/**\" -c \"npm run build:web\"",
+    "dev": "npm run build:web && concurrently -k -n watch,app \"npm run watch:web\" \"cross-env ELECTRON_RUN_AS_NODE= electronmon .\"",
+    "dev:web": "npm run dev --prefix aistudio-elrc-maker",
+    "pack": "npm run build:web && cross-env ELECTRON_RUN_AS_NODE= electron-builder --dir",
+    "dist": "npm run build:web && cross-env ELECTRON_RUN_AS_NODE= electron-builder"
+  },
+  "electronmon": {
+    "patterns": [
+      "!aistudio-elrc-maker/{app,components,lib,hooks}/**",
+      "!aistudio-elrc-maker/.next/**",
+      "aistudio-elrc-maker/dist/**"
+    ]
   },
   "devDependencies": {
-    "electron": "^42.2.0"
+    "chokidar-cli": "^3.0.0",
+    "concurrently": "^9.2.1",
+    "cross-env": "^7.0.3",
+    "electron": "^42.2.0",
+    "electron-builder": "^26.0.12",
+    "electronmon": "^2.0.3"
+  },
+  "build": {
+    "appId": "com.yuanchiu.elrc-maker",
+    "productName": "LRC Maker Enhanced",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "static-server.js",
+      "package.json",
+      "aistudio-elrc-maker/dist/**/*"
+    ],
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "AudioVideo",
+      "maintainer": "Yuan Chiu <chyuaner@users.noreply.github.com>",
+      "icon": "aistudio-elrc-maker/app/public/icon.svg"
+    },
+    "win": {
+      "target": ["nsis"]
+    },
+    "mac": {
+      "target": ["dmg"],
+      "category": "public.app-category.music"
+    }
   }
 }
