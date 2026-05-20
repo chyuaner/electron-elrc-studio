@@ -1,0 +1,123 @@
+# 推送至 main/master 或打 tag（v*）時，建置 Linux / Windows / macOS 安裝包。
+# - 一般 push：產物上傳至 Actions Artifacts（保留 90 天）
+# - tag v*：另建立 GitHub Release 並附上安裝檔供下載
+
+name: Release Build
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  # CI 環境有時會設定 ELECTRON_RUN_AS_NODE=1，會導致 Electron 無法啟動
+  ELECTRON_RUN_AS_NODE: ''
+  CI: true
+  # 無 Apple 簽章憑證時略過簽署（仍可產出未簽章 dmg）
+  CSC_IDENTITY_AUTO_DISCOVERY: false
+
+jobs:
+  build:
+    name: Build (${{ matrix.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: Linux
+            electron-cache: ~/.cache/electron
+            builder-cache: ~/.cache/electron-builder
+          - os: windows-latest
+            name: Windows
+            electron-cache: ~/.cache/electron
+            builder-cache: ~/.cache/electron-builder
+          - os: macos-latest
+            name: macOS
+            electron-cache: ~/Library/Caches/electron
+            builder-cache: ~/Library/Caches/electron-builder
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout（含 submodule）
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libarchive-tools \
+            rpm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend & package
+        run: npm run dist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: |
+            release/*.AppImage
+            release/*.deb
+            release/*.exe
+            release/*.dmg
+            release/*.blockmap
+            release/latest*.yml
+          if-no-files-found: error
+          retention-days: 90
+
+  github-release:
+    name: Publish GitHub Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all platform artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist-artifacts
+          merge-multiple: true
+
+      - name: List release files
+        run: find dist-artifacts -type f | sort
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist-artifacts/**/*.AppImage
+            dist-artifacts/**/*.deb
+            dist-artifacts/**/*.exe
+            dist-artifacts/**/*.dmg
+            dist-artifacts/**/*.blockmap
+            dist-artifacts/**/latest*.yml
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

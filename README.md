@@ -51,6 +51,27 @@ npm run dist
 
 產物位於 `release/`（Linux：AppImage / deb，Windows：nsis，macOS：dmg）。
 
+## 自動建置與下載（GitHub Actions）
+
+推送至 `main` / `master` 時會自動在三平台建置，產物可在 GitHub **Actions** 分頁 → 該次 workflow → **Artifacts** 下載：
+
+| Artifact | 內容 |
+|----------|------|
+| **Linux** | `.AppImage`、`.deb` |
+| **Windows** | NSIS 安裝程式 `.exe` |
+| **macOS** | `.dmg`（`macos-latest` runner，Apple Silicon） |
+
+若要發佈正式版本並出現在 **Releases** 頁面供使用者下載：
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+推送 `v*` tag 時會額外建立 [GitHub Release](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases) 並附上各平台安裝檔。
+
+> **Submodule**：CI 會執行 `submodules: recursive`，請確認 `aistudio-elrc-maker` 已提交至遠端且可被 Actions 存取。
+
 ## 自訂標題列（TopToolbar）
 
 桌面版以 `TopToolbar` 作為標題列，依平台採用混合策略（邏輯在 repo 根目錄，不修改 `aistudio-elrc-maker`）：
