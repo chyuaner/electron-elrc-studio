@@ -1,0 +1,16 @@
+{
+  "name": "electron-elrc-maker",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Yuan Chiu",
+  "type": "commonjs",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "electron": "^42.2.0"
+  }
+}
