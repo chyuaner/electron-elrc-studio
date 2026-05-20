@@ -46,6 +46,14 @@ function getWindowOptions() {
   return {
     ...base,
     frame: false,
+    // titleBarStyle: 'hidden',
+    // // titleBarOverlay: 'true',
+    // titleBarOverlay: {
+    //   color: '#1b255b',
+    //   symbolColor: '#295f6bff',
+    //   height: 36
+    // }
+    // transparent:true,
   };
 }
 
