@@ -15,7 +15,7 @@
 //   'dark'   → 強制深色（Dark Mode）
 //   'light'  → 強制淺色（Light Mode）
 //   'system' → 跟隨系統設定（prefers-color-scheme）
-const THEME_MODE = 'system';
+const THEME_MODE = 'dark';
 
 // ─── 視窗圓角 ─────────────────────────────────────────────────
 // 無框視窗（Linux / frameless）是否套用圓角效果。
