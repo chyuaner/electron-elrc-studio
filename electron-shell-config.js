@@ -14,13 +14,13 @@ function getWindowOptions() {
   const base = {
     width: 1280,
     height: 800,
-    minWidth: 960,
-    minHeight: 640,
-    title: 'LRC Maker Enhanced',
+    minWidth: 700,
+    minHeight: 750,
+    title: 'Enhanced LRC Maker',
     autoHideMenuBar: true,
     show: false,
     backgroundColor: TITLEBAR_COLORS.background,
-    icon: path.join(__dirname, 'aistudio-elrc-maker', 'public', 'icon-app.png'),
+    icon: path.join(__dirname, 'build', 'icon.png'),
   };
 
   if (platform === 'darwin') {
