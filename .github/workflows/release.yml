@@ -77,17 +77,11 @@ jobs:
         if: runner.os == 'Windows'
         run: choco install rsvg-convert
 
-      - name: Install dependencies (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          # Windows 上先跳過 postinstall，避免 EPERM rmdir 錯誤
-          npm ci --ignore-scripts
-          # 手動安裝子專案依賴
-          npm install --prefix aistudio-elrc-maker
-
       - name: Install dependencies
-        if: runner.os != 'Windows'
-        run: npm ci
+        run: |
+          npm ci --ignore-scripts
+          cd aistudio-elrc-maker
+          npm ci
 
       - name: Build frontend & package
         run: npm run dist

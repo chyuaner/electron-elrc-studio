@@ -11,13 +11,13 @@
   "type": "commonjs",
   "main": "main.js",
   "scripts": {
-    "postinstall": "npm install --prefix aistudio-elrc-maker",
+    "postinstall": "cd aistudio-elrc-maker && npm install",
     "build:icons": "node scripts/generate-icons.js",
-    "build:web": "npm run build --prefix aistudio-elrc-maker",
+    "build:web": "cd aistudio-elrc-maker && npm run build",
     "start": "cross-env ELECTRON_RUN_AS_NODE= electron .",
     "watch:web": "chokidar \"aistudio-elrc-maker/{app,components,lib,hooks}/**/*.{ts,tsx,css}\" --ignore \"**/node_modules/**\" -c \"npm run build:web\"",
     "dev": "npm run build:icons && npm run build:web && concurrently -k -n watch,app \"npm run watch:web\" \"cross-env ELECTRON_RUN_AS_NODE= electronmon .\"",
-    "dev:web": "npm run dev --prefix aistudio-elrc-maker",
+    "dev:web": "cd aistudio-elrc-maker && npm run dev",
     "pack": "npm run build:icons && npm run build:web && cross-env ELECTRON_RUN_AS_NODE= electron-builder --dir",
     "dist": "npm run build:icons && npm run build:web && cross-env ELECTRON_RUN_AS_NODE= electron-builder"
   },
