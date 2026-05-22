@@ -95,6 +95,7 @@ jobs:
           path: |
             release/*.AppImage
             release/*.deb
+            release/*.pacman
             release/*.exe
             release/*.dmg
             release/*.blockmap
@@ -124,6 +125,7 @@ jobs:
           files: |
             dist-artifacts/**/*.AppImage
             dist-artifacts/**/*.deb
+            dist-artifacts/**/*.pacman
             dist-artifacts/**/*.exe
             dist-artifacts/**/*.dmg
             dist-artifacts/**/*.blockmap

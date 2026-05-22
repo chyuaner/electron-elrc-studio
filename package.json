@@ -59,7 +59,8 @@
     "linux": {
       "target": [
         "AppImage",
-        "deb"
+        "deb",
+        "pacman"
       ],
       "category": "AudioVideo",
       "maintainer": "Yuan Chiu <chyuaner@gmail.com>",
@@ -67,7 +68,8 @@
     },
     "win": {
       "target": [
-        "nsis"
+        "nsis",
+        "portable"
       ],
       "icon": "build/icon.ico"
     },
