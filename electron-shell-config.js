@@ -20,7 +20,7 @@ function getWindowOptions() {
     autoHideMenuBar: true,
     show: false,
     backgroundColor: TITLEBAR_COLORS.background,
-    icon: path.join(__dirname, 'build', 'icon.png'),
+    icon: path.join(__dirname, 'aistudio-elrc-maker', 'public', 'icon-app.png'),
   };
 
   if (platform === 'darwin') {
