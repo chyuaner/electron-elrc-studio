@@ -1,3 +1,4 @@
+const path = require('path');
 /** 深色主題標題列（對齊 globals.css / TopToolbar） */
 const TITLEBAR_COLORS = {
   background: '#16191E',
@@ -19,6 +20,7 @@ function getWindowOptions() {
     autoHideMenuBar: true,
     show: false,
     backgroundColor: TITLEBAR_COLORS.background,
+    icon: path.join(__dirname, 'build', 'icon.png'),
   };
 
   if (platform === 'darwin') {

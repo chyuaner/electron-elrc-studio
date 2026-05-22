@@ -1,9 +1,9 @@
 {
   "name": "electron-elrc-maker",
   "version": "1.0.0",
-  "description": "LRC Maker Enhanced — Electron 桌面版",
+  "description": "Enhanced LRC Maker — Electron 桌面版",
   "homepage": "https://github.com/chyuaner/aistudio-elrc-maker",
-  "license": "ISC",
+  "license": "CC-BY-NC-SA-4.0",
   "author": {
     "name": "Yuan Chiu",
     "email": "chyuaner@gmail.com"
@@ -12,13 +12,14 @@
   "main": "main.js",
   "scripts": {
     "postinstall": "npm install --prefix aistudio-elrc-maker",
+    "build:icons": "node scripts/generate-icons.js",
     "build:web": "npm run build --prefix aistudio-elrc-maker",
     "start": "cross-env ELECTRON_RUN_AS_NODE= electron .",
     "watch:web": "chokidar \"aistudio-elrc-maker/{app,components,lib,hooks}/**/*.{ts,tsx,css}\" --ignore \"**/node_modules/**\" -c \"npm run build:web\"",
-    "dev": "npm run build:web && concurrently -k -n watch,app \"npm run watch:web\" \"cross-env ELECTRON_RUN_AS_NODE= electronmon .\"",
+    "dev": "npm run build:icons && npm run build:web && concurrently -k -n watch,app \"npm run watch:web\" \"cross-env ELECTRON_RUN_AS_NODE= electronmon .\"",
     "dev:web": "npm run dev --prefix aistudio-elrc-maker",
-    "pack": "npm run build:web && cross-env ELECTRON_RUN_AS_NODE= electron-builder --dir",
-    "dist": "npm run build:web && cross-env ELECTRON_RUN_AS_NODE= electron-builder"
+    "pack": "npm run build:icons && npm run build:web && cross-env ELECTRON_RUN_AS_NODE= electron-builder --dir",
+    "dist": "npm run build:icons && npm run build:web && cross-env ELECTRON_RUN_AS_NODE= electron-builder"
   },
   "electronmon": {
     "patterns": [
@@ -33,10 +34,11 @@
     "cross-env": "^7.0.3",
     "electron": "^42.2.0",
     "electron-builder": "^26.0.12",
-    "electronmon": "^2.0.3"
+    "electronmon": "^2.0.3",
+    "png2icons": "^2.0.1"
   },
   "build": {
-    "appId": "com.yuanchiu.elrc-maker",
+    "appId": "tw.yuaner.elrc-maker",
     "productName": "LRC Maker Enhanced",
     "directories": {
       "output": "release"
@@ -51,20 +53,30 @@
       "electron-shell.css",
       "electron-bootstrap.js",
       "package.json",
-      "aistudio-elrc-maker/dist/**/*"
+      "aistudio-elrc-maker/dist/**/*",
+      "build/icon.png"
     ],
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "category": "AudioVideo",
-      "maintainer": "Yuan Chiu <chyuaner@users.noreply.github.com>",
-      "icon": "aistudio-elrc-maker/app/public/icon.svg"
+      "maintainer": "Yuan Chiu <chyuaner@gmail.com>",
+      "icon": "build/icon.png"
     },
     "win": {
-      "target": ["nsis"]
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.ico"
     },
     "mac": {
-      "target": ["dmg"],
-      "category": "public.app-category.music"
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.music",
+      "icon": "build/icon.icns"
     }
   }
 }

@@ -41,6 +41,11 @@ bower_components
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
 
+# Electron builder icons (generated during build)
+build/*.ico
+build/*.icns
+build/*.png
+
 # Dependency directories
 node_modules/
 jspm_packages/
