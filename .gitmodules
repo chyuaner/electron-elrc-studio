@@ -1,3 +1,4 @@
 [submodule "aistudio-elrc-maker"]
 	path = aistudio-elrc-maker
 	url = https://github.com/chyuaner/aistudio-elrc-maker.git
+	branch = prod
