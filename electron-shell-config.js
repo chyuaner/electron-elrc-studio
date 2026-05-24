@@ -16,7 +16,7 @@ function getWindowOptions() {
     height: 800,
     minWidth: 700,
     minHeight: 750,
-    title: 'Enhanced LRC Maker',
+    title: 'Enhanced LRC Studio',
     autoHideMenuBar: true,
     show: false,
     backgroundColor: TITLEBAR_COLORS.background,

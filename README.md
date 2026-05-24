@@ -1,4 +1,4 @@
-# LRC Maker Enhanced（Electron 桌面版）
+# Enhanced LRC Studio（Electron 桌面版）
 
 將 [aistudio-elrc-maker](https://github.com/chyuaner/aistudio-elrc-maker)（Next.js 靜態匯出）包裝為 Electron 桌面應用程式。
 

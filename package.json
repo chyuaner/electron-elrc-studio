@@ -1,7 +1,7 @@
 {
-  "name": "electron-elrc-maker",
+  "name": "electron-elrc-studio",
   "version": "1.0.0",
-  "description": "Enhanced LRC Maker — Electron 桌面版",
+  "description": "Enhanced LRC Studio — Electron 桌面版",
   "homepage": "https://github.com/chyuaner/aistudio-elrc-maker",
   "license": "CC-BY-NC-SA-4.0",
   "author": {
@@ -39,7 +39,7 @@
   },
   "build": {
     "appId": "tw.yuaner.elrc-maker",
-    "productName": "LRC Maker Enhanced",
+    "productName": "Enhanced LRC Studio",
     "directories": {
       "output": "release"
     },
