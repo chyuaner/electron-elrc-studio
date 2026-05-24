@@ -43,6 +43,15 @@
     "directories": {
       "output": "release"
     },
+    "fileAssociations": [
+      {
+        "ext": "lrc",
+        "name": "Lyric File",
+        "description": "LRC 動態歌詞檔",
+        "role": "Editor",
+        "mimeType": "text/x-lrc"
+      }
+    ],
     "files": [
       "main.js",
       "preload.js",
@@ -63,6 +72,9 @@
         "pacman"
       ],
       "category": "AudioVideo",
+      "mimeTypes": [
+        "text/x-lrc"
+      ],
       "maintainer": "Yuan Chiu <chyuaner@gmail.com>",
       "icon": "build/icon.png"
     },

@@ -18,8 +18,17 @@ const {
 const WEB_DIST = path.join(__dirname, 'aistudio-elrc-maker', 'dist');
 /** @type {import('http').Server | null} */
 let staticServer = null;
-/** @type {BrowserWindow | null} */
-let mainWindow = null;
+let currentAppUrl = null;
+let macFilesToOpen = [];
+
+app.on('open-file', (event, path) => {
+  event.preventDefault();
+  if (app.isReady() && currentAppUrl) {
+    createWindow(currentAppUrl, path);
+  } else {
+    macFilesToOpen.push(path);
+  }
+});
 
 /** @type {WeakMap<import('electron').BrowserWindow, { offsetX: number, offsetY: number }>} */
 const windowDragState = new WeakMap();
@@ -41,17 +50,17 @@ async function ensureAppUrl() {
   return url;
 }
 
-function broadcastWindowState() {
-  if (!mainWindow) return;
+function broadcastWindowState(win) {
+  if (!win) return;
   const state = {
-    isMaximized: mainWindow.isMaximized(),
-    isFullScreen: mainWindow.isFullScreen(),
+    isMaximized: win.isMaximized(),
+    isFullScreen: win.isFullScreen(),
   };
-  mainWindow.webContents.send('window:state-changed', state);
+  win.webContents.send('window:state-changed', state);
 }
 
-function createWindow(appUrl) {
-  mainWindow = new BrowserWindow({
+function createWindow(appUrl, initialFilePath = null) {
+  const win = new BrowserWindow({
     ...getWindowOptions(),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -61,77 +70,116 @@ function createWindow(appUrl) {
     },
   });
 
-  mainWindow.once('ready-to-show', () => {
-    mainWindow?.show();
+  win.once('ready-to-show', () => {
+    win.show();
   });
 
-  mainWindow.on('maximize', broadcastWindowState);
-  mainWindow.on('unmaximize', broadcastWindowState);
-  mainWindow.on('enter-full-screen', broadcastWindowState);
-  mainWindow.on('leave-full-screen', broadcastWindowState);
-  mainWindow.on('focus', () => mainWindow?.webContents.send('window:focus-changed', true));
-  mainWindow.on('blur', () => mainWindow?.webContents.send('window:focus-changed', false));
+  win.on('maximize', () => broadcastWindowState(win));
+  win.on('unmaximize', () => broadcastWindowState(win));
+  win.on('enter-full-screen', () => broadcastWindowState(win));
+  win.on('leave-full-screen', () => broadcastWindowState(win));
+  win.on('focus', () => win.webContents.send('window:focus-changed', true));
+  win.on('blur', () => win.webContents.send('window:focus-changed', false));
 
   const applyShell = () => {
-    applyShellToWebContents(mainWindow).catch((err) => {
+    applyShellToWebContents(win).catch((err) => {
       console.warn('Failed to apply Electron shell:', err);
     });
     // 注入主題初始化 script（在 React hydration 之前執行）
     const themeScript = getThemeInjectionScript();
-    mainWindow?.webContents.executeJavaScript(themeScript).catch(() => {});
+    win.webContents.executeJavaScript(themeScript).catch(() => {});
   };
-  mainWindow.webContents.on('dom-ready', applyShell);
-  mainWindow.webContents.on('did-finish-load', applyShell);
+  win.webContents.on('dom-ready', applyShell);
+  win.webContents.on('did-finish-load', () => {
+    applyShell();
+    if (initialFilePath) {
+      win.webContents.send('open-associated-file', initialFilePath);
+    }
+  });
 
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+  win.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
     return { action: 'deny' };
   });
 
-  mainWindow.loadURL(appUrl);
+  win.loadURL(appUrl);
+  return win;
 }
 
 async function bootstrap() {
   // 套用主題設定（在建立視窗前設定，確保 nativeTheme 已就緒）
   nativeTheme.themeSource = getNativeThemeSource();
-  const appUrl = await ensureAppUrl();
-  createWindow(appUrl);
+  currentAppUrl = await ensureAppUrl();
+  
+  const args = process.defaultApp ? process.argv.slice(2) : process.argv.slice(1);
+  const filesToOpen = args.filter(arg => arg.toLowerCase().endsWith('.lrc'));
+
+  const allFiles = [...new Set([...filesToOpen, ...macFilesToOpen])];
+  macFilesToOpen = []; // clear
+
+  if (allFiles.length > 0) {
+    allFiles.forEach(filePath => createWindow(currentAppUrl, filePath));
+  } else {
+    createWindow(currentAppUrl);
+  }
 }
 
-app.whenReady().then(() => {
-  ipcMain.handle('window:toggle-fullscreen', () => {
-    if (!mainWindow) return false;
-    const next = !mainWindow.isFullScreen();
-    mainWindow.setFullScreen(next);
-    broadcastWindowState();
-    return next;
-  });
+const gotTheLock = app.requestSingleInstanceLock();
 
-  ipcMain.handle('window:get-state', () => {
-    if (!mainWindow) return { isMaximized: false, isFullScreen: false };
-    return {
-      isMaximized: mainWindow.isMaximized(),
-      isFullScreen: mainWindow.isFullScreen(),
-    };
-  });
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    if (!currentAppUrl) return;
+    const args = process.defaultApp ? commandLine.slice(2) : commandLine.slice(1);
+    const filesToOpen = args.filter(arg => arg.toLowerCase().endsWith('.lrc'));
 
-  ipcMain.on('window:minimize', () => {
-    mainWindow?.minimize();
-  });
-
-  ipcMain.on('window:toggle-maximize', () => {
-    if (!mainWindow) return;
-    if (mainWindow.isMaximized()) {
-      mainWindow.unmaximize();
+    if (filesToOpen.length > 0) {
+      filesToOpen.forEach(filePath => createWindow(currentAppUrl, filePath));
     } else {
-      mainWindow.maximize();
+      createWindow(currentAppUrl);
     }
-    broadcastWindowState();
   });
 
-  ipcMain.on('window:close', () => {
-    mainWindow?.close();
-  });
+  app.whenReady().then(() => {
+    ipcMain.handle('window:toggle-fullscreen', (event) => {
+      const win = BrowserWindow.fromWebContents(event.sender);
+      if (!win) return false;
+      const next = !win.isFullScreen();
+      win.setFullScreen(next);
+      broadcastWindowState(win);
+      return next;
+    });
+
+    ipcMain.handle('window:get-state', (event) => {
+      const win = BrowserWindow.fromWebContents(event.sender);
+      if (!win) return { isMaximized: false, isFullScreen: false };
+      return {
+        isMaximized: win.isMaximized(),
+        isFullScreen: win.isFullScreen(),
+      };
+    });
+
+    ipcMain.on('window:minimize', (event) => {
+      const win = BrowserWindow.fromWebContents(event.sender);
+      win?.minimize();
+    });
+
+    ipcMain.on('window:toggle-maximize', (event) => {
+      const win = BrowserWindow.fromWebContents(event.sender);
+      if (!win) return;
+      if (win.isMaximized()) {
+        win.unmaximize();
+      } else {
+        win.maximize();
+      }
+      broadcastWindowState(win);
+    });
+
+    ipcMain.on('window:close', (event) => {
+      const win = BrowserWindow.fromWebContents(event.sender);
+      win?.close();
+    });
 
   ipcMain.on('window:drag-start', (event, { x, y }) => {
     const win = BrowserWindow.fromWebContents(event.sender);
@@ -209,6 +257,7 @@ app.whenReady().then(() => {
     }
   });
 });
+}
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
