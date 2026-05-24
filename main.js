@@ -181,6 +181,10 @@ if (!gotTheLock) {
       win?.close();
     });
 
+    ipcMain.on('window:set-theme', (event, theme) => {
+      nativeTheme.themeSource = theme;
+    });
+
   ipcMain.on('window:drag-start', (event, { x, y }) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     if (!win) return;

@@ -1,4 +1,4 @@
 [submodule "web-elrc-studio"]
 	path = web-elrc-studio
 	url = https://github.com/chyuaner/web-elrc-studio.git
-	branch = prod
+	branch = main

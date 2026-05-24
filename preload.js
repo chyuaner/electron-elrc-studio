@@ -40,6 +40,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   windowMinimize: () => ipcRenderer.send('window:minimize'),
   windowToggleMaximize: () => ipcRenderer.send('window:toggle-maximize'),
   windowClose: () => ipcRenderer.send('window:close'),
+  windowSetTheme: (theme) => ipcRenderer.send('window:set-theme', theme),
   getWindowState: () => ipcRenderer.invoke('window:get-state'),
   onWindowStateChange: (callback) => {
     if (typeof callback !== 'function') return () => {};
