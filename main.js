@@ -152,6 +152,49 @@ app.whenReady().then(() => {
     if (win) windowDragState.delete(win);
   });
 
+  ipcMain.handle('fs:exists', (event, filePath) => {
+    try {
+      return fs.existsSync(filePath);
+    } catch (e) {
+      return false;
+    }
+  });
+
+  ipcMain.handle('fs:read-file-binary', (event, filePath) => {
+    try {
+      return fs.readFileSync(filePath);
+    } catch (e) {
+      console.error('Error reading binary file:', e);
+      throw e;
+    }
+  });
+
+  ipcMain.handle('fs:read-file-text', (event, filePath) => {
+    try {
+      return fs.readFileSync(filePath, 'utf-8');
+    } catch (e) {
+      console.error('Error reading text file:', e);
+      throw e;
+    }
+  });
+
+  ipcMain.handle('fs:read-dir', (event, dirPath) => {
+    try {
+      return fs.readdirSync(dirPath);
+    } catch (e) {
+      console.error('Error reading dir:', e);
+      return [];
+    }
+  });
+
+  ipcMain.handle('path:parse', (event, filePath) => {
+    return path.parse(filePath);
+  });
+
+  ipcMain.handle('path:join', (event, ...paths) => {
+    return path.join(...paths);
+  });
+
   bootstrap().catch((err) => {
     console.error(err);
     app.exit(1);

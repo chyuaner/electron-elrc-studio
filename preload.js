@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, webUtils } = require('electron');
 
 /** 內嵌設定，避免 sandbox preload require 失敗導致 electronAPI 未暴露 */
 function getShellConfig() {
@@ -59,4 +59,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('window:focus-changed', handler);
     return () => ipcRenderer.removeListener('window:focus-changed', handler);
   },
+  /** File System APIs for auto-loading matching files */
+  fsExists: (filePath) => ipcRenderer.invoke('fs:exists', filePath),
+  fsReadFileBinary: (filePath) => ipcRenderer.invoke('fs:read-file-binary', filePath),
+  fsReadFileText: (filePath) => ipcRenderer.invoke('fs:read-file-text', filePath),
+  fsReadDir: (dirPath) => ipcRenderer.invoke('fs:read-dir', dirPath),
+  pathParse: (filePath) => ipcRenderer.invoke('path:parse', filePath),
+  pathJoin: (...paths) => ipcRenderer.invoke('path:join', ...paths),
+  getPathForFile: (file) => webUtils.getPathForFile(file),
 });
