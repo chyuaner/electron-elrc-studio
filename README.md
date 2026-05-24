@@ -1,6 +1,6 @@
 # Enhanced LRC Studio（Electron 桌面版）
 
-將 [aistudio-elrc-maker](https://github.com/chyuaner/aistudio-elrc-maker)（Next.js 靜態匯出）包裝為 Electron 桌面應用程式。
+將 [web-elrc-studio](https://github.com/chyuaner/web-elrc-studio)（Next.js 靜態匯出）包裝為 Electron 桌面應用程式。
 
 ## 需求
 
@@ -23,7 +23,7 @@ env -u ELECTRON_RUN_AS_NODE npm start
 
 ## 開發（桌面視窗模式）
 
-`npm run dev` 會先建置前端靜態檔（與正式打包相同），再以 Electron 視窗載入，等同測試桌面應用程式效果。修改 `aistudio-elrc-maker` 原始碼後會自動重新建置並重啟視窗。
+`npm run dev` 會先建置前端靜態檔（與正式打包相同），再以 Electron 視窗載入，等同測試桌面應用程式效果。修改 `web-elrc-studio` 原始碼後會自動重新建置並重啟視窗。
 
 ```bash
 npm install
@@ -70,11 +70,11 @@ git push origin v1.0.0
 
 推送 `v*` tag 時會額外建立 [GitHub Release](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases) 並附上各平台安裝檔。
 
-> **Submodule**：CI 會執行 `submodules: recursive`，請確認 `aistudio-elrc-maker` 已提交至遠端且可被 Actions 存取。
+> **Submodule**：CI 會執行 `submodules: recursive`，請確認 `web-elrc-studio` 已提交至遠端且可被 Actions 存取。
 
 ## 自訂標題列（TopToolbar）
 
-桌面版以 `TopToolbar` 作為標題列，依平台採用混合策略（邏輯在 repo 根目錄，不修改 `aistudio-elrc-maker`）：
+桌面版以 `TopToolbar` 作為標題列，依平台採用混合策略（邏輯在 repo 根目錄，不修改 `web-elrc-studio`）：
 
 | 平台 | 視窗外框 | 視窗按鈕 | 預留空間 |
 |------|----------|----------|----------|
@@ -95,5 +95,5 @@ Linux 自訂三顆按鈕由 `ElectronWindowControls` 繪製於 `TopToolbar` 右�
 | `electron-window.js` | 各平台無邊框／標題列覆蓋設定 |
 | `electron-shell.css` | 拖曳區 `-webkit-app-region`、自訂視窗按鈕樣式 |
 | `electron-bootstrap.js` | 注入標題列 padding、Linux 自訂三顆按鈕 |
-| `static-server.js` | 載入 `aistudio-elrc-maker/dist` |
-| `aistudio-elrc-maker/` | Git submodule（Next.js 前端） |
+| `static-server.js` | 載入 `web-elrc-studio/dist` |
+| `web-elrc-studio/` | Git submodule（Next.js 前端） |

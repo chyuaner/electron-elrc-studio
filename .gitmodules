@@ -2,3 +2,7 @@
 	path = aistudio-elrc-maker
 	url = https://github.com/chyuaner/aistudio-elrc-maker.git
 	branch = prod
+[submodule "web-elrc-studio"]
+	path = web-elrc-studio
+	url = https://github.com/chyuaner/web-elrc-studio.git
+	branch = prod

@@ -15,7 +15,7 @@ const {
   getThemeInjectionScript,
 } = require('./electron-app-config');
 
-const WEB_DIST = path.join(__dirname, 'aistudio-elrc-maker', 'dist');
+const WEB_DIST = path.join(__dirname, 'web-elrc-studio', 'dist');
 /** @type {import('http').Server | null} */
 let staticServer = null;
 let currentAppUrl = null;

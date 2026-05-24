@@ -3,7 +3,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 const rootDir = path.join(__dirname, '..');
-const svgPath = path.join(rootDir, 'aistudio-elrc-maker', 'public', 'icon-app.svg');
+const svgPath = path.join(rootDir, 'web-elrc-studio', 'public', 'icon-app.svg');
 const buildDir = path.join(rootDir, 'build');
 const pngPath = path.join(buildDir, 'icon.png');
 const icoPath = path.join(buildDir, 'icon.ico');

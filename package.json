@@ -2,7 +2,7 @@
   "name": "electron-elrc-studio",
   "version": "1.0.0",
   "description": "Enhanced LRC Studio — Electron 桌面版",
-  "homepage": "https://github.com/chyuaner/aistudio-elrc-maker",
+  "homepage": "https://github.com/chyuaner/web-elrc-studio",
   "license": "CC-BY-NC-SA-4.0",
   "author": {
     "name": "Yuan Chiu",
@@ -11,21 +11,21 @@
   "type": "commonjs",
   "main": "main.js",
   "scripts": {
-    "postinstall": "cd aistudio-elrc-maker && npm install",
+    "postinstall": "cd web-elrc-studio && npm install",
     "build:icons": "node scripts/generate-icons.js",
-    "build:web": "cd aistudio-elrc-maker && npm run build",
+    "build:web": "cd web-elrc-studio && npm run build",
     "start": "cross-env ELECTRON_RUN_AS_NODE= electron .",
-    "watch:web": "chokidar \"aistudio-elrc-maker/{app,components,lib,hooks}/**/*.{ts,tsx,css}\" --ignore \"**/node_modules/**\" -c \"npm run build:web\"",
+    "watch:web": "chokidar \"web-elrc-studio/{app,components,lib,hooks}/**/*.{ts,tsx,css}\" --ignore \"**/node_modules/**\" -c \"npm run build:web\"",
     "dev": "npm run build:icons && npm run build:web && concurrently -k -n watch,app \"npm run watch:web\" \"cross-env ELECTRON_RUN_AS_NODE= electronmon .\"",
-    "dev:web": "cd aistudio-elrc-maker && npm run dev",
+    "dev:web": "cd web-elrc-studio && npm run dev",
     "pack": "npm run build:icons && npm run build:web && cross-env ELECTRON_RUN_AS_NODE= electron-builder --dir",
     "dist": "npm run build:icons && npm run build:web && cross-env ELECTRON_RUN_AS_NODE= electron-builder"
   },
   "electronmon": {
     "patterns": [
-      "!aistudio-elrc-maker/{app,components,lib,hooks}/**",
-      "!aistudio-elrc-maker/.next/**",
-      "aistudio-elrc-maker/dist/**"
+      "!web-elrc-studio/{app,components,lib,hooks}/**",
+      "!web-elrc-studio/.next/**",
+      "web-elrc-studio/dist/**"
     ]
   },
   "devDependencies": {
@@ -62,7 +62,7 @@
       "electron-shell.css",
       "electron-bootstrap.js",
       "package.json",
-      "aistudio-elrc-maker/dist/**/*",
+      "web-elrc-studio/dist/**/*",
       "build/icon.png"
     ],
     "linux": {
