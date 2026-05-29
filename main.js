@@ -59,6 +59,62 @@ function broadcastWindowState(win) {
   win.webContents.send('window:state-changed', state);
 }
 
+function parseCliArgs(args) {
+  const files = [];
+  let exportAss = false;
+  let exportAssValue = null;
+  let help = false;
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--help' || arg === '-h') {
+      help = true;
+    } else if (arg === '--export-ass') {
+      exportAss = true;
+      if (i + 1 < args.length && !args[i + 1].startsWith('-')) {
+        exportAssValue = args[i + 1];
+        i++;
+      }
+    } else if (arg.startsWith('--export-ass=')) {
+      exportAss = true;
+      exportAssValue = arg.substring('--export-ass='.length);
+    } else if (arg.toLowerCase().endsWith('.lrc')) {
+      files.push(arg);
+    }
+  }
+
+  return { files, exportAss, exportAssValue, help };
+}
+
+let cliHiddenWindow = null;
+
+let pendingCliExportArgs = null;
+
+function handleCliExport(files, exportAssValue) {
+  pendingCliExportArgs = { files, exportAssValue };
+  if (cliHiddenWindow) return;
+  
+  cliHiddenWindow = new BrowserWindow({
+    ...getWindowOptions(),
+    show: false,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+      webSecurity: false,
+    },
+  });
+
+  cliHiddenWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
+    console.log(`[CLI] ${message}`);
+  });
+
+  cliHiddenWindow.loadURL(currentAppUrl);
+}
+
+const initialFiles = new Map();
+
 function createWindow(appUrl, initialFilePath = null) {
   const win = new BrowserWindow({
     ...getWindowOptions(),
@@ -72,6 +128,14 @@ function createWindow(appUrl, initialFilePath = null) {
 
   win.once('ready-to-show', () => {
     win.show();
+  });
+
+  if (initialFilePath) {
+    initialFiles.set(win.webContents.id, initialFilePath);
+  }
+
+  win.on('closed', () => {
+    initialFiles.delete(win.webContents.id);
   });
 
   win.on('maximize', () => broadcastWindowState(win));
@@ -92,9 +156,6 @@ function createWindow(appUrl, initialFilePath = null) {
   win.webContents.on('dom-ready', applyShell);
   win.webContents.on('did-finish-load', () => {
     applyShell();
-    if (initialFilePath) {
-      win.webContents.send('open-associated-file', initialFilePath);
-    }
   });
 
   win.webContents.setWindowOpenHandler(({ url }) => {
@@ -112,16 +173,44 @@ async function bootstrap() {
   currentAppUrl = await ensureAppUrl();
   
   const args = process.defaultApp ? process.argv.slice(2) : process.argv.slice(1);
-  const filesToOpen = args.filter(arg => arg.toLowerCase().endsWith('.lrc'));
+  const parsedArgs = parseCliArgs(args);
 
-  const allFiles = [...new Set([...filesToOpen, ...macFilesToOpen])];
+  const allFiles = [...new Set([...parsedArgs.files, ...macFilesToOpen])];
   macFilesToOpen = []; // clear
 
-  if (allFiles.length > 0) {
+  if (parsedArgs.exportAss && allFiles.length > 0) {
+    handleCliExport(allFiles, parsedArgs.exportAssValue);
+  } else if (allFiles.length > 0) {
     allFiles.forEach(filePath => createWindow(currentAppUrl, filePath));
   } else {
     createWindow(currentAppUrl);
   }
+}
+
+const earlyArgs = process.defaultApp ? process.argv.slice(2) : process.argv.slice(1);
+const earlyParsed = parseCliArgs(earlyArgs);
+if (earlyParsed.help) {
+  console.log(`
+Enhanced LRC Studio CLI 說明：
+
+  用法:
+    npx electron . [歌詞檔案.lrc] [選項]
+
+  選項:
+    -h, --help               顯示此說明訊息
+    --export-ass             將指定的一個或多個 .lrc 歌詞檔匯出為 KTV .ass 字幕檔。
+                             匯出樣式將自動採用您在 UI 中調整並儲存的設定（從 localStorage 讀取）。
+                             可選附加參數以指定特定輸出路徑，例如：
+                             --export-ass="輸出路徑.ass" 或 --export-ass "輸出路徑.ass"（僅適用於單一檔案匯出）
+
+  範例:
+    # 預設匯出（自動搜尋同資料夾同名影片大小並自動命名為 .ass）
+    npx electron . "水星.lrc" --export-ass
+
+    # 指定匯出檔名
+    npx electron . "水星.lrc" --export-ass="自訂輸出.ass"
+`);
+  process.exit(0);
 }
 
 const gotTheLock = app.requestSingleInstanceLock();
@@ -132,10 +221,12 @@ if (!gotTheLock) {
   app.on('second-instance', (event, commandLine, workingDirectory) => {
     if (!currentAppUrl) return;
     const args = process.defaultApp ? commandLine.slice(2) : commandLine.slice(1);
-    const filesToOpen = args.filter(arg => arg.toLowerCase().endsWith('.lrc'));
+    const parsedArgs = parseCliArgs(args);
 
-    if (filesToOpen.length > 0) {
-      filesToOpen.forEach(filePath => createWindow(currentAppUrl, filePath));
+    if (parsedArgs.exportAss && parsedArgs.files.length > 0) {
+      handleCliExport(parsedArgs.files, parsedArgs.exportAssValue);
+    } else if (parsedArgs.files.length > 0) {
+      parsedArgs.files.forEach(filePath => createWindow(currentAppUrl, filePath));
     } else {
       createWindow(currentAppUrl);
     }
@@ -239,12 +330,41 @@ if (!gotTheLock) {
     }
   });
 
+  ipcMain.handle('fs:write-file-text', (event, filePath, text) => {
+    try {
+      fs.writeFileSync(filePath, text, 'utf-8');
+      return true;
+    } catch (e) {
+      console.error('Error writing text file:', e);
+      throw e;
+    }
+  });
+
+  ipcMain.on('cli-export-ass-done', () => {
+    if (cliHiddenWindow) {
+      cliHiddenWindow.close();
+      cliHiddenWindow = null;
+    }
+  });
+
   ipcMain.handle('path:parse', (event, filePath) => {
     return path.parse(filePath);
   });
 
   ipcMain.handle('path:join', (event, ...paths) => {
     return path.join(...paths);
+  });
+
+  ipcMain.handle('cli:get-export-args', (event) => {
+    const args = pendingCliExportArgs;
+    pendingCliExportArgs = null; // Clear it so it's only retrieved once
+    return args;
+  });
+
+  ipcMain.handle('cli:get-initial-file', (event) => {
+    const filePath = initialFiles.get(event.sender.id);
+    initialFiles.delete(event.sender.id); // Clear after retrieved
+    return filePath || null;
   });
 
   bootstrap().catch((err) => {

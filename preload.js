@@ -64,8 +64,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   fsExists: (filePath) => ipcRenderer.invoke('fs:exists', filePath),
   fsReadFileBinary: (filePath) => ipcRenderer.invoke('fs:read-file-binary', filePath),
   fsReadFileText: (filePath) => ipcRenderer.invoke('fs:read-file-text', filePath),
+  fsWriteFileText: (filePath, text) => ipcRenderer.invoke('fs:write-file-text', filePath, text),
   fsReadDir: (dirPath) => ipcRenderer.invoke('fs:read-dir', dirPath),
   pathParse: (filePath) => ipcRenderer.invoke('path:parse', filePath),
   pathJoin: (...paths) => ipcRenderer.invoke('path:join', ...paths),
   getPathForFile: (file) => webUtils.getPathForFile(file),
+  getCliExportArgs: () => ipcRenderer.invoke('cli:get-export-args'),
+  cliExportAssDone: () => ipcRenderer.send('cli-export-ass-done'),
+  getInitialFile: () => ipcRenderer.invoke('cli:get-initial-file'),
 });

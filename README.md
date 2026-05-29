@@ -72,6 +72,30 @@ git push origin v1.0.0
 
 > **Submodule**：CI 會執行 `submodules: recursive`，請確認 `web-elrc-studio` 已提交至遠端且可被 Actions 存取。
 
+## 命令列模式 (CLI)
+
+本程式支援命令列操作，可以直接將 `.lrc` 歌詞檔案匯出為 KTV `.ass` 字幕檔。匯出時的樣式將會自動套用您於 UI 介面設定並儲存的樣式（從 `localStorage` 讀取）。
+
+### 使用方式
+
+於開發環境或已安裝環境，可以使用以下指令：
+
+```bash
+# 顯示命令列說明訊息
+npx electron . --help
+
+# 基本用法（預設輸出與影片或歌詞同名之 .ass 檔案，並自動偵測同目錄下的影音檔解析度）
+npx electron . "水星.lrc" --export-ass
+
+# 指定輸出路徑（使用空格分隔）
+npx electron . "水星.lrc" --export-ass "輸出.ass"
+
+# 指定輸出路徑（使用 = 串接）
+npx electron . "水星.lrc" --export-ass="輸出.ass"
+```
+
+*注意：CLI 匯出動作會在背景無外框視窗中進行，處理完畢後會自動結束程式。*
+
 ## 自訂標題列（TopToolbar）
 
 桌面版以 `TopToolbar` 作為標題列，依平台採用混合策略（邏輯在 repo 根目錄，不修改 `web-elrc-studio`）：
