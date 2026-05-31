@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell, nativeTheme } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, nativeTheme, dialog } = require('electron');
 
 if (process.platform === 'linux') {
   app.commandLine.appendSwitch('enable-features', 'WaylandWindowDecorations');
@@ -130,12 +130,13 @@ function createWindow(appUrl, initialFilePath = null) {
     win.show();
   });
 
+  const webContentsId = win.webContents.id;
   if (initialFilePath) {
-    initialFiles.set(win.webContents.id, initialFilePath);
+    initialFiles.set(webContentsId, initialFilePath);
   }
 
   win.on('closed', () => {
-    initialFiles.delete(win.webContents.id);
+    initialFiles.delete(webContentsId);
   });
 
   win.on('maximize', () => broadcastWindowState(win));
@@ -144,6 +145,20 @@ function createWindow(appUrl, initialFilePath = null) {
   win.on('leave-full-screen', () => broadcastWindowState(win));
   win.on('focus', () => win.webContents.send('window:focus-changed', true));
   win.on('blur', () => win.webContents.send('window:focus-changed', false));
+
+  win.webContents.on('will-prevent-unload', (event) => {
+    const choice = dialog.showMessageBoxSync(win, {
+      type: 'question',
+      buttons: ['確定離開', '取消'],
+      title: '確認離開',
+      message: '您有目前可能未儲存的歌詞變更。確定要離開嗎？',
+      defaultId: 0,
+      cancelId: 1
+    });
+    if (choice === 0) {
+      event.preventDefault();
+    }
+  });
 
   const applyShell = () => {
     applyShellToWebContents(win).catch((err) => {
