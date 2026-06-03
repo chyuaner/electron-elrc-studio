@@ -355,6 +355,12 @@ if (!gotTheLock) {
     }
   });
 
+  ipcMain.handle('dialog:show-save-dialog', async (event, options) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (!win) return { canceled: true };
+    return await dialog.showSaveDialog(win, options);
+  });
+
   ipcMain.on('cli-export-ass-done', () => {
     if (cliHiddenWindow) {
       cliHiddenWindow.close();

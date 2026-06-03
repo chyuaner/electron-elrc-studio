@@ -69,6 +69,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   pathParse: (filePath) => ipcRenderer.invoke('path:parse', filePath),
   pathJoin: (...paths) => ipcRenderer.invoke('path:join', ...paths),
   getPathForFile: (file) => webUtils.getPathForFile(file),
+  showSaveDialog: (options) => ipcRenderer.invoke('dialog:show-save-dialog', options),
   getCliExportArgs: () => ipcRenderer.invoke('cli:get-export-args'),
   cliExportAssDone: () => ipcRenderer.send('cli-export-ass-done'),
   getInitialFile: () => ipcRenderer.invoke('cli:get-initial-file'),
