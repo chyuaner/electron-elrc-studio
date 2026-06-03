@@ -15,7 +15,7 @@
 //   'dark'   → 強制深色（Dark Mode）
 //   'light'  → 強制淺色（Light Mode）
 //   'system' → 跟隨系統設定（prefers-color-scheme）
-const THEME_MODE = 'system';
+const THEME_MODE = "system";
 
 // ─── 視窗圓角 ─────────────────────────────────────────────────
 // 無框視窗（Linux / frameless）是否套用圓角效果。
@@ -38,8 +38,8 @@ const UNFOCUSED_TOOLBAR_DIM = true;
  * @returns {'dark' | 'light' | 'system'}
  */
 function getThemeMode() {
-  const valid = ['dark', 'light', 'system'];
-  return valid.includes(THEME_MODE) ? THEME_MODE : 'system';
+  const valid = ["dark", "light", "system"];
+  return valid.includes(THEME_MODE) ? THEME_MODE : "system";
 }
 
 /**
@@ -50,14 +50,14 @@ function getThemeMode() {
 function getThemeInjectionScript() {
   const mode = getThemeMode();
 
-  if (mode === 'dark') {
+  if (mode === "dark") {
     return `
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light');
     `;
   }
 
-  if (mode === 'light') {
+  if (mode === "light") {
     return `
       document.documentElement.classList.add('light');
       document.documentElement.classList.remove('dark');
@@ -93,7 +93,7 @@ function getNativeThemeSource() {
  * @returns {string}
  */
 function getRoundedWindowCSS() {
-  if (!ROUNDED_WINDOW) return '';
+  if (!ROUNDED_WINDOW) return "";
   return `
     html {
       background: transparent !important;

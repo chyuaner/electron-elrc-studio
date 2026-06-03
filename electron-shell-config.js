@@ -1,8 +1,8 @@
-const path = require('path');
+const path = require("path");
 /** 深色主題標題列（對齊 globals.css / TopToolbar） */
 const TITLEBAR_COLORS = {
-  background: '#16191E',
-  symbol: '#E0E0E0',
+  background: "#16191E",
+  symbol: "#E0E0E0",
   height: 32,
 };
 
@@ -16,27 +16,27 @@ function getWindowOptions() {
     height: 800,
     minWidth: 700,
     minHeight: 750,
-    title: 'Enhanced LRC Studio',
+    title: "Enhanced LRC Studio",
     autoHideMenuBar: true,
     show: false,
     backgroundColor: TITLEBAR_COLORS.background,
-    icon: path.join(__dirname, 'build', 'icon.png'),
+    icon: path.join(__dirname, "build", "icon.png"),
   };
 
-  if (platform === 'darwin') {
+  if (platform === "darwin") {
     return {
       ...base,
       frame: true,
-      titleBarStyle: 'hiddenInset',
+      titleBarStyle: "hiddenInset",
       trafficLightPosition: { x: 14, y: 14 },
     };
   }
 
-  if (platform === 'win32') {
+  if (platform === "win32") {
     return {
       ...base,
       frame: true,
-      titleBarStyle: 'hidden',
+      titleBarStyle: "hidden",
       titleBarOverlay: {
         color: TITLEBAR_COLORS.background,
         symbolColor: TITLEBAR_COLORS.symbol,
@@ -70,27 +70,27 @@ function getWindowOptions() {
 function getShellConfig() {
   const platform = process.platform;
 
-  if (platform === 'darwin') {
+  if (platform === "darwin") {
     return {
-      titlebarLeftPadding: '70px',
-      titlebarRightPadding: '0px',
+      titlebarLeftPadding: "70px",
+      titlebarRightPadding: "0px",
       useCustomWindowControls: false,
       useNativeWindowControls: true,
     };
   }
 
-  if (platform === 'win32') {
+  if (platform === "win32") {
     return {
-      titlebarLeftPadding: '0px',
-      titlebarRightPadding: '138px',
+      titlebarLeftPadding: "0px",
+      titlebarRightPadding: "138px",
       useCustomWindowControls: false,
       useNativeWindowControls: true,
     };
   }
 
   return {
-    titlebarLeftPadding: '0px',
-    titlebarRightPadding: '138px',
+    titlebarLeftPadding: "0px",
+    titlebarRightPadding: "138px",
     useCustomWindowControls: true,
     useNativeWindowControls: false,
   };

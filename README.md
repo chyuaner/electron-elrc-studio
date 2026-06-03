@@ -55,11 +55,11 @@ npm run dist
 
 推送至 `main` / `master` 時會自動在三平台建置，產物可在 GitHub **Actions** 分頁 → 該次 workflow → **Artifacts** 下載：
 
-| Artifact | 內容 |
-|----------|------|
-| **Linux** | `.AppImage`、`.deb` |
-| **Windows** | NSIS 安裝程式 `.exe` |
-| **macOS** | `.dmg`（`macos-latest` runner，Apple Silicon） |
+| Artifact    | 內容                                           |
+| ----------- | ---------------------------------------------- |
+| **Linux**   | `.AppImage`、`.deb`                            |
+| **Windows** | NSIS 安裝程式 `.exe`                           |
+| **macOS**   | `.dmg`（`macos-latest` runner，Apple Silicon） |
 
 若要發佈正式版本並出現在 **Releases** 頁面供使用者下載：
 
@@ -94,17 +94,17 @@ npx electron . "水星.lrc" --export-ass "輸出.ass"
 npx electron . "水星.lrc" --export-ass="輸出.ass"
 ```
 
-*注意：CLI 匯出動作會在背景無外框視窗中進行，處理完畢後會自動結束程式。*
+_注意：CLI 匯出動作會在背景無外框視窗中進行，處理完畢後會自動結束程式。_
 
 ## 自訂標題列（TopToolbar）
 
 桌面版以 `TopToolbar` 作為標題列，依平台採用混合策略（邏輯在 repo 根目錄，不修改 `web-elrc-studio`）：
 
-| 平台 | 視窗外框 | 視窗按鈕 | 預留空間 |
-|------|----------|----------|----------|
-| **macOS** | `titleBarStyle: hiddenInset` | 系統紅綠燈（左側） | `--titlebar-left-padding: 70px` |
+| 平台        | 視窗外框                                    | 視窗按鈕             | 預留空間                          |
+| ----------- | ------------------------------------------- | -------------------- | --------------------------------- |
+| **macOS**   | `titleBarStyle: hiddenInset`                | 系統紅綠燈（左側）   | `--titlebar-left-padding: 70px`   |
 | **Windows** | `titleBarStyle: hidden` + `titleBarOverlay` | 系統覆蓋按鈕（右側） | `--titlebar-right-padding: 138px` |
-| **Linux** | `frame: false` | 注入 HTML 三顆按鈕 | `--titlebar-right-padding: 138px` |
+| **Linux**   | `frame: false`                              | 注入 HTML 三顆按鈕   | `--titlebar-right-padding: 138px` |
 
 標題列拖曳：`globals.css` 內 `html.electron-shell header` 規則；Linux 另備 IPC 手動拖曳（Wayland 相容）。雙擊 `header` 可最大化／還原。
 
@@ -112,12 +112,12 @@ Linux 自訂三顆按鈕由 `ElectronWindowControls` 繪製於 `TopToolbar` 右�
 
 ## 專案結構
 
-| 路徑 | 說明 |
-|------|------|
-| `main.js` | Electron 主行程：視窗、本機靜態伺服器 |
-| `preload.js` | 暴露 `window.electronAPI`（全螢幕、視窗控制等） |
-| `electron-window.js` | 各平台無邊框／標題列覆蓋設定 |
-| `electron-shell.css` | 拖曳區 `-webkit-app-region`、自訂視窗按鈕樣式 |
-| `electron-bootstrap.js` | 注入標題列 padding、Linux 自訂三顆按鈕 |
-| `static-server.js` | 載入 `web-elrc-studio/dist` |
-| `web-elrc-studio/` | Git submodule（Next.js 前端） |
+| 路徑                    | 說明                                            |
+| ----------------------- | ----------------------------------------------- |
+| `main.js`               | Electron 主行程：視窗、本機靜態伺服器           |
+| `preload.js`            | 暴露 `window.electronAPI`（全螢幕、視窗控制等） |
+| `electron-window.js`    | 各平台無邊框／標題列覆蓋設定                    |
+| `electron-shell.css`    | 拖曳區 `-webkit-app-region`、自訂視窗按鈕樣式   |
+| `electron-bootstrap.js` | 注入標題列 padding、Linux 自訂三顆按鈕          |
+| `static-server.js`      | 載入 `web-elrc-studio/dist`                     |
+| `web-elrc-studio/`      | Git submodule（Next.js 前端）                   |

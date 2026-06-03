@@ -10,14 +10,14 @@
   const { shell } = api;
   const root = document.documentElement;
 
-  root.classList.add('electron-shell');
+  root.classList.add("electron-shell");
 
   if (shell.titlebarLeftPadding) {
-    root.style.setProperty('--titlebar-left-padding', shell.titlebarLeftPadding);
+    root.style.setProperty("--titlebar-left-padding", shell.titlebarLeftPadding);
   }
   if (shell.useCustomWindowControls) {
-    root.style.setProperty('--titlebar-right-padding', '0px');
+    root.style.setProperty("--titlebar-right-padding", "0px");
   } else if (shell.titlebarRightPadding) {
-    root.style.setProperty('--titlebar-right-padding', shell.titlebarRightPadding);
+    root.style.setProperty("--titlebar-right-padding", shell.titlebarRightPadding);
   }
 })();
