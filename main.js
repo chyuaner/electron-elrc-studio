@@ -348,6 +348,16 @@ if (!gotTheLock) {
       }
     });
 
+    ipcMain.handle("fs:write-file-binary", (event, filePath, buffer) => {
+      try {
+        fs.writeFileSync(filePath, Buffer.from(buffer));
+        return true;
+      } catch (e) {
+        console.error("Error writing binary file:", e);
+        throw e;
+      }
+    });
+
     ipcMain.handle("dialog:show-save-dialog", async (event, options) => {
       const win = BrowserWindow.fromWebContents(event.sender);
       if (!win) return { canceled: true };

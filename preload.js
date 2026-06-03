@@ -65,6 +65,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   fsReadFileBinary: (filePath) => ipcRenderer.invoke("fs:read-file-binary", filePath),
   fsReadFileText: (filePath) => ipcRenderer.invoke("fs:read-file-text", filePath),
   fsWriteFileText: (filePath, text) => ipcRenderer.invoke("fs:write-file-text", filePath, text),
+  fsWriteFileBinary: (filePath, buffer) =>
+    ipcRenderer.invoke("fs:write-file-binary", filePath, buffer),
   fsReadDir: (dirPath) => ipcRenderer.invoke("fs:read-dir", dirPath),
   pathParse: (filePath) => ipcRenderer.invoke("path:parse", filePath),
   pathJoin: (...paths) => ipcRenderer.invoke("path:join", ...paths),
