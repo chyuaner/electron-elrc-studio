@@ -391,6 +391,10 @@ if (!gotTheLock) {
       return filePath || null;
     });
 
+    ipcMain.handle("gpu:get-info", async () => {
+      return await app.getGPUInfo("basic");
+    });
+
     bootstrap().catch((err) => {
       console.error(err);
       app.exit(1);
