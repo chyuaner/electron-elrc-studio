@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Enhanced LRC Studio — Electron 桌面版",
   "homepage": "https://github.com/chyuaner/web-elrc-studio",
-  "license": "CC-BY-NC-SA-4.0",
+  "license": "AGPL-3.0-only",
   "author": {
     "name": "Yuan Chiu",
     "email": "chyuaner@gmail.com"
