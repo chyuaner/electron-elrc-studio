@@ -12,8 +12,8 @@ const TITLEBAR_COLORS = {
 function getWindowOptions() {
   const platform = process.platform;
   const base = {
-    width: 1280,
-    height: 800,
+    width: 1450,
+    height: 900,
     minWidth: 700,
     minHeight: 750,
     title: "Enhanced LRC Studio",
