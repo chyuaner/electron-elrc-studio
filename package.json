@@ -19,7 +19,8 @@
     "dev": "npm run build:icons && npm run build:web && concurrently -k -n watch,app \"npm run watch:web\" \"cross-env ELECTRON_RUN_AS_NODE= electronmon .\"",
     "dev:web": "cd web-elrc-studio && npm run dev",
     "pack": "npm run build:icons && npm run build:web && cross-env ELECTRON_RUN_AS_NODE= electron-builder --dir",
-    "dist": "npm run build:icons && npm run build:web && cross-env ELECTRON_RUN_AS_NODE= electron-builder"
+    "dist": "npm run build:icons && npm run build:web && cross-env ELECTRON_RUN_AS_NODE= electron-builder",
+    "build": "npm run dist"
   },
   "electronmon": {
     "patterns": [
