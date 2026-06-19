@@ -1,6 +1,5 @@
 {
   "name": "electron-elrc-studio",
-  "version": "1.0.0",
   "description": "Enhanced LRC Studio — Electron 桌面版",
   "homepage": "https://github.com/chyuaner/web-elrc-studio",
   "license": "AGPL-3.0-only",
@@ -18,8 +17,8 @@
     "watch:web": "chokidar \"web-elrc-studio/{app,components,lib,hooks}/**/*.{ts,tsx,css}\" --ignore \"**/node_modules/**\" -c \"npm run build:web\"",
     "dev": "npm run build:icons && npm run build:web && concurrently -k -n watch,app \"npm run watch:web\" \"cross-env ELECTRON_RUN_AS_NODE= electronmon .\"",
     "dev:web": "cd web-elrc-studio && npm run dev",
-    "pack": "npm run build:icons && npm run build:web && cross-env ELECTRON_RUN_AS_NODE= electron-builder --dir",
-    "dist": "npm run build:icons && npm run build:web && cross-env ELECTRON_RUN_AS_NODE= electron-builder",
+    "pack": "npm run build:icons && npm run build:web && cross-env ELECTRON_RUN_AS_NODE= node scripts/build.js --dir",
+    "dist": "npm run build:icons && npm run build:web && cross-env ELECTRON_RUN_AS_NODE= node scripts/build.js",
     "build": "npm run dist"
   },
   "electronmon": {
