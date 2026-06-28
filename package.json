@@ -13,12 +13,12 @@
     "postinstall": "cd web-elrc-studio && npm install",
     "build:icons": "node scripts/generate-icons.js",
     "build:web": "cd web-elrc-studio && npm run build",
-    "start": "cross-env ELECTRON_RUN_AS_NODE= electron .",
+    "start": "electron .",
     "watch:web": "chokidar \"web-elrc-studio/{app,components,lib,hooks}/**/*.{ts,tsx,css}\" --ignore \"**/node_modules/**\" -c \"npm run build:web\"",
-    "dev": "npm run build:icons && npm run build:web && concurrently -k -n watch,app \"npm run watch:web\" \"cross-env ELECTRON_RUN_AS_NODE= electronmon .\"",
+    "dev": "npm run build:icons && npm run build:web && concurrently -k -n watch,app \"npm run watch:web\" \"electronmon .\"",
     "dev:web": "cd web-elrc-studio && npm run dev",
-    "pack": "npm run build:icons && npm run build:web && cross-env ELECTRON_RUN_AS_NODE= node scripts/build.js --dir",
-    "dist": "npm run build:icons && npm run build:web && cross-env ELECTRON_RUN_AS_NODE= node scripts/build.js",
+    "pack": "npm run build:icons && npm run build:web && node scripts/build.js --dir",
+    "dist": "npm run build:icons && npm run build:web && node scripts/build.js",
     "build": "npm run dist"
   },
   "electronmon": {
