@@ -3,7 +3,7 @@ const path = require("path");
 const TITLEBAR_COLORS = {
   background: "#16191E",
   symbol: "#E0E0E0",
-  height: 32,
+  height: 48,
 };
 
 /**
