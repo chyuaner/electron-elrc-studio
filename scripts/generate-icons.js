@@ -15,81 +15,96 @@ if (!fs.existsSync(buildDir)) {
 }
 
 // 1. Convert SVG to PNG (1024x1024)
-let rsvgAvailable = false;
-try {
-  // Check if rsvg-convert exists
-  const command = process.platform === "win32" ? "where rsvg-convert" : "which rsvg-convert";
-  execSync(command, { stdio: "ignore" });
-  rsvgAvailable = true;
-} catch (e) {
-  // Not available
-}
+if (!fs.existsSync(pngPath)) {
+  console.log("Converting SVG to PNG (1024x1024)...");
+  let rendered = false;
 
-if (rsvgAvailable) {
-  console.log("Converting SVG to PNG (1024x1024) using rsvg-convert...");
+  // Try pure JS/WASM @resvg/resvg-js first (guaranteed cross-platform, zero native system dependencies)
   try {
-    execSync(`rsvg-convert -w 1024 -h 1024 -f png -o "${pngPath}" "${svgPath}"`);
-    console.log("Successfully generated build/icon.png");
+    const { Resvg } = require("@resvg/resvg-js");
+    const svgBuffer = fs.readFileSync(svgPath);
+    const resvg = new Resvg(svgBuffer, {
+      fitTo: {
+        mode: "width",
+        value: 1024,
+      },
+    });
+    const pngBuffer = resvg.render().asPng();
+    fs.writeFileSync(pngPath, pngBuffer);
+    console.log("Successfully generated build/icon.png using @resvg/resvg-js");
+    rendered = true;
   } catch (err) {
-    console.error("Error running rsvg-convert:", err.message);
+    console.warn("Failed to generate icon using @resvg/resvg-js, trying fallback tools...", err.message);
   }
-} else {
-  console.log("rsvg-convert not found.");
-  if (fs.existsSync(pngPath)) {
-    console.log("Using existing build/icon.png");
-  } else {
-    // If not found, try to use ImageMagick
-    let convertAvailable = false;
-    let convertCmd = "convert";
 
+  // Fallback to rsvg-convert or ImageMagick if @resvg/resvg-js fails or is not installed
+  if (!rendered) {
+    let rsvgAvailable = false;
     try {
-      // 1. Try to find ImageMagick 7+ (magick command)
-      const checkMagick = process.platform === "win32" ? "where magick" : "which magick";
-      execSync(checkMagick, { stdio: "ignore" });
-      convertAvailable = true;
-      convertCmd = "magick";
-    } catch (e) {
-      // 2. If magick is not found, try convert command
-      try {
-        const checkConvert = process.platform === "win32" ? "where convert" : "which convert";
-        if (process.platform === "win32") {
-          // On Windows, 'where convert' might find C:\Windows\System32\convert.exe
-          // We run it and inspect the output paths.
-          const stdout = execSync(checkConvert).toString().trim();
-          const paths = stdout.split(/\r?\n/).map(p => p.trim());
-          // Find any path that does NOT contain "system32" or "syswow64" (case-insensitive)
-          const validPath = paths.find(p => {
-            const lower = p.toLowerCase();
-            return !lower.includes("\\system32\\") && !lower.includes("\\syswow64\\");
-          });
-          if (validPath) {
-            convertAvailable = true;
-            convertCmd = `"${validPath}"`;
-          }
-        } else {
-          execSync(checkConvert, { stdio: "ignore" });
-          convertAvailable = true;
-        }
-      } catch (err) {}
-    }
+      const command = process.platform === "win32" ? "where rsvg-convert" : "which rsvg-convert";
+      execSync(command, { stdio: "ignore" });
+      rsvgAvailable = true;
+    } catch (e) {}
 
-    if (convertAvailable) {
-      console.log(`Converting SVG to PNG (1024x1024) using ImageMagick (${convertCmd})...`);
+    if (rsvgAvailable) {
+      console.log("Converting SVG to PNG (1024x1024) using rsvg-convert...");
       try {
-        // ImageMagick can sometimes render SVG poorly without proper libraries, but it's a good fallback
-        execSync(`${convertCmd} -background none -size 1024x1024 "${svgPath}" "${pngPath}"`);
+        execSync(`rsvg-convert -w 1024 -h 1024 -f png -o "${pngPath}" "${svgPath}"`);
         console.log("Successfully generated build/icon.png");
+        rendered = true;
       } catch (err) {
-        console.error("Error running ImageMagick convert:", err.message);
-        process.exit(1);
+        console.error("Error running rsvg-convert:", err.message);
       }
     } else {
-      console.warn(
-        "\n[WARNING] Neither rsvg-convert nor ImageMagick could be found, and build/icon.png does not exist.\n" +
-        "Skipping PNG icon generation. You can install ImageMagick (https://imagemagick.org) or rsvg-convert if you need to generate icons.\n"
-      );
+      let convertAvailable = false;
+      let convertCmd = "convert";
+      try {
+        const checkMagick = process.platform === "win32" ? "where magick" : "which magick";
+        execSync(checkMagick, { stdio: "ignore" });
+        convertAvailable = true;
+        convertCmd = "magick";
+      } catch (e) {
+        try {
+          const checkConvert = process.platform === "win32" ? "where convert" : "which convert";
+          if (process.platform === "win32") {
+            const stdout = execSync(checkConvert).toString().trim();
+            const paths = stdout.split(/\r?\n/).map(p => p.trim());
+            const validPath = paths.find(p => {
+              const lower = p.toLowerCase();
+              return !lower.includes("\\system32\\") && !lower.includes("\\syswow64\\");
+            });
+            if (validPath) {
+              convertAvailable = true;
+              convertCmd = `"${validPath}"`;
+            }
+          } else {
+            execSync(checkConvert, { stdio: "ignore" });
+            convertAvailable = true;
+          }
+        } catch (err) {}
+      }
+
+      if (convertAvailable) {
+        console.log(`Converting SVG to PNG (1024x1024) using ImageMagick (${convertCmd})...`);
+        try {
+          execSync(`${convertCmd} -background none -size 1024x1024 "${svgPath}" "${pngPath}"`);
+          console.log("Successfully generated build/icon.png");
+          rendered = true;
+        } catch (err) {
+          console.error("Error running ImageMagick convert:", err.message);
+        }
+      }
     }
   }
+
+  if (!fs.existsSync(pngPath)) {
+    console.warn(
+      "\n[WARNING] Neither @resvg/resvg-js, rsvg-convert, nor ImageMagick could generate build/icon.png.\n" +
+      "Skipping PNG icon generation.\n"
+    );
+  }
+} else {
+  console.log("Using existing build/icon.png");
 }
 
 // 2. Generate ICO and ICNS using png2icons

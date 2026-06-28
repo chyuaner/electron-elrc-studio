@@ -6,8 +6,16 @@ if (process.platform === "linux") {
 const path = require("path");
 const fs = require("fs");
 const { startStaticServer } = require("./static-server");
-const { getWindowOptions, applyShellToWebContents } = require("./electron-window");
+const { getWindowOptions, applyShellToWebContents, updateTitleBarOverlayTheme } = require("./electron-window");
 const { getNativeThemeSource, getThemeInjectionScript } = require("./electron-app-config");
+
+// Update all window control overlays when native OS theme changes
+nativeTheme.on("updated", () => {
+  const windows = BrowserWindow.getAllWindows();
+  for (const win of windows) {
+    updateTitleBarOverlayTheme(win, nativeTheme.shouldUseDarkColors);
+  }
+});
 
 const WEB_DIST = path.join(__dirname, "web-elrc-studio", "dist");
 /** @type {import('http').Server | null} */
@@ -118,6 +126,9 @@ function createWindow(appUrl, initialFilePath = null) {
       sandbox: true,
     },
   });
+
+  // Set initial title bar overlay colors based on nativeTheme's colors
+  updateTitleBarOverlayTheme(win, nativeTheme.shouldUseDarkColors);
 
   win.once("ready-to-show", () => {
     win.show();
@@ -282,6 +293,10 @@ if (!gotTheLock) {
 
     ipcMain.on("window:set-theme", (event, theme) => {
       nativeTheme.themeSource = theme;
+      const win = BrowserWindow.fromWebContents(event.sender);
+      if (win) {
+        updateTitleBarOverlayTheme(win, nativeTheme.shouldUseDarkColors);
+      }
     });
 
     ipcMain.on("window:drag-start", (event, { x, y }) => {
