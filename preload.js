@@ -76,4 +76,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
   cliExportAssDone: () => ipcRenderer.send("cli-export-ass-done"),
   getInitialFile: () => ipcRenderer.invoke("cli:get-initial-file"),
   getGpuInfo: () => ipcRenderer.invoke("gpu:get-info"),
+  getEnv: () => ipcRenderer.invoke("env:get"),
 });

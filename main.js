@@ -1,3 +1,6 @@
+// Load environment variables from .env file
+require("dotenv").config();
+
 const { app, BrowserWindow, ipcMain, shell, nativeTheme, dialog } = require("electron");
 
 if (process.platform === "linux") {
@@ -408,6 +411,13 @@ if (!gotTheLock) {
 
     ipcMain.handle("gpu:get-info", async () => {
       return await app.getGPUInfo("basic");
+    });
+
+    ipcMain.handle("env:get", () => {
+      return {
+        DEBUG: process.env.DEBUG === "true" || process.env.DEBUG === "1",
+        SHOW_INTERNAL_TEST_PARAMS: process.env.SHOW_INTERNAL_TEST_PARAMS === "true" || process.env.SHOW_INTERNAL_TEST_PARAMS === "1",
+      };
     });
 
     bootstrap().catch((err) => {
